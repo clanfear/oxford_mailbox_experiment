@@ -47,3 +47,4 @@ rsconnect/
 
 /data/derived/*
 /data/raw/*
+!.git_placeholder
