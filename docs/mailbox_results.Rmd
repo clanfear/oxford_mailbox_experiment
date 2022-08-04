@@ -16,9 +16,9 @@ library(janitor)
 
 refresh_data <- FALSE
 if(refresh_data){
-  source("../syntax/participants_processing.R")
-  source("../syntax/neighb_context_processing.R")
-  source("../syntax/analysis_processing.R")
+  source("../syntax/01_participants_processing.R")
+  source("../syntax/02_neighb_context_processing.R")
+  source("../syntax/04_analysis_processing.R")
 }
 load("../data/derived/analytical_data.RData")
 
