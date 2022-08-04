@@ -1,0 +1,122 @@
+---
+title: "Mailbox Experiment Results"
+author: "Chuck Lanfear"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, ft.tabcolsep = 1)
+library(tidyverse)
+library(flextable)
+library(janitor)
+
+# To pull all data down fresh from the Google drive and remake the analytical 
+# data file, change refresh_data to TRUE:
+
+refresh_data <- FALSE
+if(refresh_data){
+  source("../syntax/participants_processing.R")
+  source("../syntax/neighb_context_processing.R")
+  source("../syntax/analysis_processing.R")
+}
+load("../data/derived/analytical_data.RData")
+
+# Function to assemble tables with counts and row proportions
+make_prop_table <- function(tab, denominator = "row"){
+  results_table <- the_counts <- tab %>%
+    adorn_totals(where = c("row", "col"))
+  the_percents <- the_counts %>%
+    adorn_percentages(denominator)
+  results_table[, -1] <- sapply(2:ncol(the_counts), function(x){
+    paste0(the_counts[[x]], "\n(", round(the_percents[[x]], 3)*100, "%)")
+  })
+  return(results_table)
+}
+```
+
+# Overview
+
+This memo documents results from the 2014-2017 SNCS mailbox experiments.
+
+## Terms
+
+* Tract: A year 2000 (SNCS) census tract
+* Experiment: An experiment refers to all trials in a given experimental **condition** (e.g., control) and tract.
+* Conditions:
+   * Control: The mailbox site was cleared of all litter, and a clean "Yard Sale" sandwich board was placed near the mailbox.
+   * Treatment: Litter and a graffitied sandwich board were added to the mailbox site.
+   * Graffiti Only: Only the graffitied sandwich board was added to the site. This was done to test if graffiti alone had an effect. Only a small number of trials were done with this treatment.
+   * Super Graffiti: Litter, a graffitied sandwich board, and a graffitied littercam were added to the site. This was done to test if magnified graffiti had an effect. Only a small number of trials done with this treatment.
+* Trial: A trial refers to everything occurring between an envelope being dropped at the mailbox and a participant either mailing or stealing that envelope.
+* Participant: Any individual passing near the mailbox while an envelope is on the ground.
+* Action: Walking by, mailing, or stealing of the envelope.
+
+# Codebook
+
+```{r}
+codebook <- 
+tribble(
+    ~variable,             ~ unit,           ~description,
+    "tract_number",           "tract",       "Year 2000 census tract",
+    "experiment_date",        "experiment",  "Date experiment was conducted",
+    "condition",              "experiment",  "Control or treatment (disorder) condition",
+    "condition_all",          "experiment",  "Expanded condition noting graffiti-only and super-graffiti trials",
+    "experiment_walkby_rate", "experiment",  "Number of inactive participants per minute of trial duration. Note endogenous to action.",
+# LETTER LEVEL
+    "unique_envelope_id",     "trial",       "Unique identifier for envelope",
+    "envelope_id_number",     "trial",       "ID number written on envelope",
+    "addressee",              "trial",       "Address on envelope: Individual or Community Organization",
+    "start_time",             "trial",       "Hour and minute of day when trial began",
+    "end_time",               "trial",       "Hour and minute of day when trial ended",
+    "trial_duration",         "trial",       "Duration of trial in minutes",
+    "walkby_sum",             "trial",       "Number of inactive participants passing envelope during trial",
+    "letter_walkby_rate",     "trial",       "walkby_sum divided by trial duration; approximate rate of foot traffic during trial. Note endogenous to action.",
+    "action",                 "participant", "Action taken by participant: Walkby, Mailed, or Theft",
+    "sex",                    "participant", "Observer-perceived sex of participant: Male, Female, or Unknown",
+    "age",                    "participant", "Observer-perceived age of participant: Young, Middle-Age, Old, or Unknown. Members of groups recorded as Unknown due to record keeping limitations.",
+    "race",                   "participant", "Observer-perceived race of participant: White, Non-White, or Unknown",
+    "in_group",               "participant", "Whether participant was walking in a group or not",
+    "group_size",             "participant", "Number of persons in group, if walking in group")
+flextable(codebook) %>%
+  set_table_properties(layout = "fixed") %>%
+  width(j = 1, width = 1.75) %>%
+  width(j = 2, width = 0.8) %>%
+  width(j = 3, width = 3.75) %>%
+  set_caption(caption = "Mailbox experiment variables and descriptions")
+```
+\newpage
+
+# Cross-tabs
+
+The first table shows counts and row-wise proportions of actions for each condition. Graffiti Only trials are excluded here as they were not done in many locations or across many trials (64 trials with 504 walkbys in 6 tracts for Graffiti Only). Graffiti Only trials were treatments using only the sandwich board with graffiti and no litter, making them a partial treatment. This leaves 3449 trials. See the appendix for more information on these special trials.
+
+```{r}
+analytical_data %>%
+  tabyl(condition, action) %>%
+  make_prop_table() %>%
+  flextable() %>% 
+  width(j = 1, 1.25) %>%
+  set_caption(caption = "Outcome by condition (n, row \\% of total)")
+```
+
+
+# Appendix
+
+```{r}
+analytical_data %>%
+  tabyl(lsoa_number, action) %>%
+  arrange(lsoa_number) %>%
+  adorn_totals(where = c("row", "col")) %>%
+  flextable()  %>% 
+  set_caption(caption = "Actions per LSOA")
+```
+
+```{r}
+analytical_data %>%
+  tabyl(lsoa_number, condition) %>%
+  arrange(lsoa_number) %>%
+  adorn_totals(where = c("row", "col")) %>%
+  flextable() %>% 
+  set_caption(caption = "Trial conditions per LSOA")
+```
