@@ -45,5 +45,5 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-data/derived/
-data/raw/
+/data/derived/*
+/data/raw/*
