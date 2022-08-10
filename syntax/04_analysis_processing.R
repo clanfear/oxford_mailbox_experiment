@@ -1,7 +1,7 @@
 library(tidyverse)
 
-load("./data/derived/individuals.RData")
-load("./data/derived/prior_disorder.RData")
+load("../data/derived/individuals.RData")
+load("../data/derived/prior_disorder.RData")
 
 analytical_data <- individuals %>%
   left_join(prior_disorder, by = c("experiment_date", "lsoa_number", "mailbox_id_number")) %>%
@@ -45,4 +45,4 @@ analytical_data <- individuals %>%
 #   distinct(experiment_date, lsoa_number, condition, control_was_cleanup)
 # analytical_data <- analytical_data %>% left_join(cleanup)
 
-save(analytical_data, file = "./data/derived/analytical_data.RData")
+save(analytical_data, file = "../data/derived/analytical_data.RData")

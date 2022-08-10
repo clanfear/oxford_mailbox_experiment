@@ -112,4 +112,4 @@ individuals <- individuals %>%
   summarize(trial_walkby_rate = sum(walkby_sum) / sum(as.numeric(drop_duration)), .groups = "drop") %>%
   right_join(individuals, by = c("experiment_date", "experiment_type", "lsoa_number"))
 
-save(individuals, file = "./data/derived/individuals.RData")
+save(individuals, file = "../data/derived/individuals.RData")

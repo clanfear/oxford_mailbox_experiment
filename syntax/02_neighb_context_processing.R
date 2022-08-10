@@ -19,4 +19,4 @@ prior_disorder <- neighb_context %>%
   select(experiment_date, lsoa_number, mailbox_id_number, prior_disorder) %>%
   mutate(experiment_date = as.Date(experiment_date)) %>%
   distinct()
-save(prior_disorder, file = "./data/derived/prior_disorder.RData")
+save(prior_disorder, file = "../data/derived/prior_disorder.RData")
